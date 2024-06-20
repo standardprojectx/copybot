@@ -39,7 +39,7 @@ async def monitor_transactions(address: str, callback):
         while True:
             try:
                 response = await client.get_signatures_for_address(pubkey, limit=10)
-                if response.value:  # Verifique se há valores na resposta
+                if response.value:
                     for transaction in response.value:
                         if transaction.signature not in confirmed_transactions:
                             confirmed_transactions.add(transaction.signature)
