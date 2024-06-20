@@ -1,16 +1,17 @@
 import asyncio
 from solana.rpc.async_api import AsyncClient
-from solana.publickey import PublicKey
+from solders.pubkey import Pubkey
 
 async def monitor_transactions(address: str, callback):
     async with AsyncClient("https://api.mainnet-beta.solana.com") as client:
-        pubkey = PublicKey(address)
+        pubkey = Pubkey.from_string(address)
         confirmed_transactions = set()
 
         while True:
-            response = await client.get_confirmed_signature_for_address2(pubkey, limit=10)
-            for transaction in response['result']:
-                if transaction['signature'] not in confirmed_transactions:
-                    confirmed_transactions.add(transaction['signature'])
-                    await callback(transaction)
+            response = await client.get_signatures_for_address(pubkey, limit=10)
+            if response.value:  # Verifique se há valores na resposta
+                for transaction in response.value:
+                    if transaction.signature not in confirmed_transactions:
+                        confirmed_transactions.add(transaction.signature)
+                        await callback(transaction)
             await asyncio.sleep(10)
