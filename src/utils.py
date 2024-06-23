@@ -1,3 +1,18 @@
+def verify_accounts (transaction_details, user_pubkey, raydium_pubkey):
+    meta = transaction_details.value.transaction.meta
+    pre_token_balances = meta.pre_token_balances if meta.pre_token_balances else []
+
+    owners = []
+    for balance in pre_token_balances:
+        if balance.owner not in owners:
+            owners.append (balance.owner)
+
+    if user_pubkey in owners and raydium_pubkey in owners:
+        return True
+    else:
+        return False
+
+
 def get_balance_changes(transaction_details, user_pubkey):
     # Extracting relevant data
     meta = transaction_details.value.transaction.meta
@@ -18,7 +33,7 @@ def get_balance_changes(transaction_details, user_pubkey):
 
         if change != 0:
             return {
-                "token_mint": pre_balance.mint,
+                "token_mint": str(pre_balance.mint),
                 "balance_change": change
             }
         return None
